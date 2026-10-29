@@ -133,6 +133,15 @@ if (!classicCss.includes(":root[data-interface-theme='seerrOrig']")) {
 }
 await writeFile(path.join(stockThemeDir, 'theme.css'), classicCss, 'utf8');
 
+// The JSON manifest widens numeric literals in TypeScript. Keep the built-in
+// catalogue typed to its stable schema after replacing the SeerrOrig manifest.
+await replaceRequired(
+  catalogPath,
+  "  seerrOrig,\n  seerrNGJ,",
+  "  seerrOrig as InterfaceThemeManifest,\n  seerrNGJ as InterfaceThemeManifest,",
+  'built-in manifest literal types'
+);
+
 console.log('SeerrNG Classic 1.0.4 overlay applied.');
 console.log('Interface: built-in SeerrOrig ID with the Classic stylesheet.');
 console.log('Routes, APIs, permissions and media handling remain SeerrNG.');
