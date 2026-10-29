@@ -53,6 +53,17 @@ async function replaceRequired(filename, before, after, label) {
   await writeFile(filename, text, 'utf8');
 }
 
+// This is the first API limiter reached by nearly every endpoint (600/minute).
+// SSR fetches made by the same process to 127.0.0.1 otherwise consume this shared
+// bucket and turn detail pages into HTTP 429/500 errors. Skip only genuine loopback
+// calls without forwarded-client headers; proxy/browser traffic remains rate-limited.
+await replaceRequired(
+  authMiddlewarePath,
+  "skip: () =>\n    process.env.NODE_ENV === 'test' || process.env.E2E_TESTS === 'true',",
+  "skip: (req) => {\n    const remoteAddress = req.socket.remoteAddress?.toLowerCase();\n    const hasForwardedClientAddress = Boolean(\n      req.headers['x-forwarded-for'] ||\n      req.headers['x-real-ip'] ||\n      req.headers.forwarded\n    );\n    const isLoopbackInternalRequest =\n      !hasForwardedClientAddress &&\n      (remoteAddress === '127.0.0.1' ||\n        remoteAddress === '::1' ||\n        remoteAddress === '::ffff:127.0.0.1');\n    return (\n      isLoopbackInternalRequest ||\n      process.env.NODE_ENV === 'test' ||\n      process.env.E2E_TESTS === 'true'\n    );\n  },",
+  'global authenticated API rate limiter for internal SSR requests'
+);
+
 // The metadata limiter is stricter (60/minute) and is shared by all metadata
 // endpoints per user. A single SSR render calls the API over loopback; exempt
 // only loopback requests without forwarded-client headers. Keep the limiter
