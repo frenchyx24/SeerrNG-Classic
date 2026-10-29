@@ -21,6 +21,7 @@ const themeContextTestPath = path.join(sourceRoot, 'src/context/ThemeContext.tes
 const providerTestPath = path.join(sourceRoot, 'src/context/ThemeProvider.vitest.test.tsx');
 const documentPath = path.join(sourceRoot, 'src/pages/_document.tsx');
 const profileTestPath = path.join(sourceRoot, 'src/styles/interfaceThemeProfiles.test.mjs');
+const serverIndexPath = path.join(sourceRoot, 'server/index.ts');
 const manifestSource = path.join(overlayRoot, 'overlays/themes/seerrng-classic/manifest.json');
 const cssSource = path.join(overlayRoot, 'overlays/themes/seerrng-classic/theme.css');
 
@@ -50,6 +51,17 @@ async function replaceRequired(filename, before, after, label) {
   text = text.replace(before, after);
   await writeFile(filename, text, 'utf8');
 }
+
+// Server-rendered pages call the same Express API over 127.0.0.1. These requests
+// share one loopback rate-limit bucket and can exhaust 600 requests/minute,
+// turning ordinary media-detail navigation into an HTTP 500. Do not apply the
+// public-client limiter to loopback server-to-self requests.
+await replaceRequired(
+  serverIndexPath,
+  "skip: () =>\n    process.env.NODE_ENV === 'test' || process.env.E2E_TESTS === 'true',",
+  "skip: (req) => {\n    const remoteAddress = req.socket.remoteAddress?.toLowerCase();\n    const isLoopbackRequest =\n      remoteAddress === '127.0.0.1' ||\n      remoteAddress === '::1' ||\n      remoteAddress === '::ffff:127.0.0.1';\n    return (\n      isLoopbackRequest ||\n      process.env.NODE_ENV === 'test' ||\n      process.env.E2E_TESTS === 'true'\n    );\n  },",
+  'API rate limit for internal loopback requests'
+);
 
 const targetThemeDir = path.join(sourceRoot, 'themes/seerrng-classic');
 await mkdir(targetThemeDir, { recursive: true });
