@@ -408,8 +408,8 @@ await replaceRequired(
 );
 await replaceRequired(
   plexWatchlistSliderPath,
-  "    watchlistError\n  ) {",
-  "  ) {",
+  "  if (\n    (isWatchlistEmpty &&\n      !user?.settings?.watchlistSyncMovies &&\n      !user?.settings?.watchlistSyncTv &&\n      !user?.settings?.watchlistSyncMusic &&\n      !user?.settings?.watchlistSyncBooks &&\n      !user?.settings?.watchlistSyncComics &&\n      !user?.settings?.watchlistSyncMagazines) ||\n    watchlistError\n  ) {\n    return null;\n  }",
+  "  if (\n    isWatchlistEmpty &&\n    !user?.settings?.watchlistSyncMovies &&\n    !user?.settings?.watchlistSyncTv &&\n    !user?.settings?.watchlistSyncMusic &&\n    !user?.settings?.watchlistSyncBooks &&\n    !user?.settings?.watchlistSyncComics &&\n    !user?.settings?.watchlistSyncMagazines\n  ) {\n    return null;\n  }",
   'keep watchlist row visible when the feed fails'
 );
 await replaceRequired(
