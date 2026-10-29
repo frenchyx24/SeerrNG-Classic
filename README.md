@@ -8,7 +8,7 @@ The official `snapetech-org/seerrng` repository is not modified. This project bu
 
 **Image:** `ghcr.io/frenchyx24/seerrng-classic:1.0.4`
 
-The workflow publishes fixed semantic version tags only. It does not publish `latest` or commit-SHA image tags.
+The workflow publishes fixed semantic version tags only. It does not publish `latest` or commit-SHA image tags. The 1.0.4 Docker build-and-publish step succeeded: https://github.com/frenchyx24/SeerrNG-Classic/actions/runs/40880019612
 
 ## What changed in 1.0.4
 
