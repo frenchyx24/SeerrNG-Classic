@@ -11,6 +11,12 @@ This repository is an **overlay**, not a copy of the full upstream source tree. 
 - `scripts/apply-overrides.mjs`: applies the theme, registers it with the server/frontend theme catalogs, switches the clean-install default, and exempts server-to-self loopback requests from the per-user external-metadata limiter (60 requests/minute) that can otherwise turn server-rendered media pages into HTTP 500 errors. It is idempotent and refuses to patch a directory whose package name is not `seerrng`.
 - `scripts/build.sh`: checks out a pinned upstream revision, applies the overlay and builds a local Docker image using the upstream Dockerfile.
 
+## Container image
+
+The latest built image is `ghcr.io/frenchyx24/seerrng-classic:latest`. The Docker build and publish workflow succeeded on 2026-10-29 with the native requester-attribution and SSR rate-limit fixes included.
+
+GitHub Container Registry packages are private by default. To pull this image from TrueNAS without a registry login, open [the package settings](https://github.com/users/frenchyx24/packages/container/package/seerrng-classic) and change package visibility to **Public** once. If you prefer to keep the package private, configure a GHCR login with a token that has `read:packages` on the host that pulls the image.
+
 ## Build
 
 Run from a machine with Git, Node.js and Docker installed:
