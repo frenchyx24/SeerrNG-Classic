@@ -39,7 +39,7 @@ WORK_DIR="$PWD/.build" sh scripts/build.sh
 
 New installs default to the classic interface. An existing account's saved interface-theme choice is intentionally not overwritten; select **SeerrNG Classic 3.5.1** under **Interface design** once after deploying this build if you want to switch that account. This is separate from **Colour palette**.
 
-The overlay does not replace database data, authentication or media integrations. It changes the default interface theme and lets true loopback SSR requests (without forwarded-client headers) reach metadata handlers without consuming the per-user 60/minute bucket. Browser clients routed through a reverse proxy retain the limiter.
+The overlay does not replace database data or media integrations. It changes the default theme; fixes request attribution for authenticated service-API calls that supply `X-API-User`; and lets true loopback SSR requests (without forwarded-client headers) reach metadata handlers without consuming the per-user 60/minute bucket. Browser clients routed through a reverse proxy retain the limiter. Only share the service API key with trusted systems, because a valid API key plus `X-API-User` can perform actions as the identified account.
 
 ## Attribution
 
@@ -47,4 +47,4 @@ The classic stylesheet is adapted from SeerrNG's existing `seerrOrig` theme. The
 
 ## Validation status
 
-A Docker build succeeded against the pinned SeerrNG source before the loopback metadata-rate-limit fix. The corrected installer is being rebuilt in GitHub Actions; use the new image only after that run succeeds. The complete browser test suite has not been run here.
+The overlay build that includes the native request-attribution change is being validated in GitHub Actions. Do not deploy the newest tag until the corresponding run completes successfully. The complete browser test suite has not been run against a live TrueNAS instance.
