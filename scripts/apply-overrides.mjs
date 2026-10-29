@@ -21,7 +21,6 @@ const themeContextTestPath = path.join(sourceRoot, 'src/context/ThemeContext.tes
 const providerTestPath = path.join(sourceRoot, 'src/context/ThemeProvider.vitest.test.tsx');
 const documentPath = path.join(sourceRoot, 'src/pages/_document.tsx');
 const profileTestPath = path.join(sourceRoot, 'src/styles/interfaceThemeProfiles.test.mjs');
-const serverIndexPath = path.join(sourceRoot, 'server/index.ts');
 const routesIndexPath = path.join(sourceRoot, 'server/routes/index.ts');
 const manifestSource = path.join(overlayRoot, 'overlays/themes/seerrng-classic/manifest.json');
 const cssSource = path.join(overlayRoot, 'overlays/themes/seerrng-classic/theme.css');
@@ -53,25 +52,14 @@ async function replaceRequired(filename, before, after, label) {
   await writeFile(filename, text, 'utf8');
 }
 
-// Server-rendered pages call the same Express API over 127.0.0.1. These requests
-// share one loopback rate-limit bucket and can exhaust 600 requests/minute,
-// turning ordinary media-detail navigation into an HTTP 500. Do not apply the
-// public-client limiter to loopback server-to-self requests.
-await replaceRequired(
-  serverIndexPath,
-  "skip: () =>\n    process.env.NODE_ENV === 'test' || process.env.E2E_TESTS === 'true',",
-  "skip: (req) => {\n    const remoteAddress = req.socket.remoteAddress?.toLowerCase();\n    const isLoopbackRequest =\n      remoteAddress === '127.0.0.1' ||\n      remoteAddress === '::1' ||\n      remoteAddress === '::ffff:127.0.0.1';\n    return (\n      isLoopbackRequest ||\n      process.env.NODE_ENV === 'test' ||\n      process.env.E2E_TESTS === 'true'\n    );\n  },",
-  'API rate limit for internal loopback requests'
-);
-
 // The metadata limiter is stricter (60/minute) and is shared by all metadata
-// endpoints per user. A single SSR render can call the loopback API repeatedly;
-// allow these server-to-self calls through while retaining the user limit for
-// requests arriving from browsers and other clients.
+// endpoints per user. A single SSR render calls the API over loopback; exempt
+// only loopback requests without forwarded-client headers. Keep the limiter
+// active for browser requests traversing a local reverse proxy.
 await replaceRequired(
   routesIndexPath,
   "skip: () =>\n    process.env.NODE_ENV === 'test' || process.env.E2E_TESTS === 'true',\n  keyGenerator: (req) => `user:${req.user!.id}`,",
-  "skip: (req) => {\n    const remoteAddress = req.socket.remoteAddress?.toLowerCase();\n    const isLoopbackRequest =\n      remoteAddress === '127.0.0.1' ||\n      remoteAddress === '::1' ||\n      remoteAddress === '::ffff:127.0.0.1';\n    return (\n      isLoopbackRequest ||\n      process.env.NODE_ENV === 'test' ||\n      process.env.E2E_TESTS === 'true'\n    );\n  },\n  keyGenerator: (req) => `user:${req.user!.id}`,",
+  "skip: (req) => {\n    const remoteAddress = req.socket.remoteAddress?.toLowerCase();\n    const hasForwardedClientAddress = Boolean(\n      req.headers['x-forwarded-for'] ||\n      req.headers['x-real-ip'] ||\n      req.headers.forwarded\n    );\n    const isLoopbackInternalRequest =\n      !hasForwardedClientAddress &&\n      (remoteAddress === '127.0.0.1' ||\n        remoteAddress === '::1' ||\n        remoteAddress === '::ffff:127.0.0.1');\n    return (\n      isLoopbackInternalRequest ||\n      process.env.NODE_ENV === 'test' ||\n      process.env.E2E_TESTS === 'true'\n    );\n  },\n  keyGenerator: (req) => `user:${req.user!.id}`,",
   'per-user external metadata limiter for internal SSR requests'
 );
 
