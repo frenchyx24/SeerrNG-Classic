@@ -47,4 +47,4 @@ The classic stylesheet is adapted from SeerrNG's existing `seerrOrig` theme. The
 
 ## Validation status
 
-The overlay build that includes the native request-attribution change is being validated in GitHub Actions. Do not deploy the newest tag until the corresponding run completes successfully. The complete browser test suite has not been run against a live TrueNAS instance.
+The overlay build that includes the native request-attribution change was built and pushed successfully by GitHub Actions on 2026-10-29. Image: `ghcr.io/frenchyx24/seerrng-classic:latest`. The workflow's Docker build/publish step succeeded; a complete browser test suite has not been run against a live TrueNAS instance.
