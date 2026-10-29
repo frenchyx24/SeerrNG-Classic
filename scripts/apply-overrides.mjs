@@ -31,6 +31,7 @@ const recentRequestsSliderPath = path.join(sourceRoot, 'src/components/Discover/
 const movieGenreSliderPath = path.join(sourceRoot, 'src/components/Discover/MovieGenreSlider/index.tsx');
 const tvGenreSliderPath = path.join(sourceRoot, 'src/components/Discover/TvGenreSlider/index.tsx');
 const plexWatchlistSliderPath = path.join(sourceRoot, 'src/components/Discover/PlexWatchlistSlider/index.tsx');
+const dockerfilePath = path.join(sourceRoot, 'Dockerfile');
 const manifestSource = path.join(overlayRoot, 'overlays/themes/seerrng-classic/manifest.json');
 const cssSource = path.join(overlayRoot, 'overlays/themes/seerrng-classic/theme.css');
 
@@ -417,6 +418,16 @@ await replaceRequired(
   "        sliderKey=\"watchlist\"\n        isLoading={isLoading}\n        isEmpty={isWatchlistEmpty}",
   "        sliderKey=\"watchlist\"\n        notice={\n          watchlistError ? (\n            <PageErrorMessage\n              title={intl.formatMessage(messages.loadFailed)}\n              retry={{\n                onClick: () => mutate(),\n                tooltip: intl.formatMessage(messages.tryAgain),\n              }}\n            />\n          ) : undefined\n        }\n        isLoading={isLoading && !watchlistError}\n        isEmpty={isWatchlistEmpty && !watchlistError}",
   'watchlist error banner'
+);
+
+// New UI messages are extracted from the component defaults. Run extraction before
+// the upstream sync check so the custom copy can build without hand-maintaining
+// generated locale JSON in this overlay repository.
+await replaceRequired(
+  dockerfilePath,
+  "RUN pnpm i18n:check && pnpm build:next && pnpm build:server",
+  "RUN pnpm i18n:extract && pnpm i18n:check && pnpm build:next && pnpm build:server",
+  'extract custom UI messages before the i18n consistency check'
 );
 
 console.log('Classic preferences, timed discovery requests, and retryable shelf errors enabled.');
