@@ -835,3 +835,21 @@
   :is(a, button, input, select, textarea):focus-visible {
   outline-offset: 2px;
 }
+
+
+/* Empty loading cards have no intrinsic width. Give placeholders the same
+   geometry as real posters so a delayed/failed API cannot collapse shelves
+   into tiny dots. Apply to both horizontal shelves and vertical poster grids. */
+:is(:root[data-interface-theme='seerrng-classic'], [data-interface-theme='seerrng-classic'])
+  .slider-item > .title-card-shell[data-poster-state='loading'],
+:is(:root[data-interface-theme='seerrng-classic'], [data-interface-theme='seerrng-classic'])
+  ul.cards-vertical > li > .title-card-shell[data-poster-state='loading'] {
+  display: block;
+  box-sizing: border-box;
+  width: var(--poster-width, 150px);
+  min-width: var(--poster-width, 150px);
+  max-width: var(--poster-width, 150px);
+  min-height: 0;
+  aspect-ratio: var(--poster-aspect-ratio, 2 / 3);
+  flex: 0 0 var(--poster-width, 150px);
+}
