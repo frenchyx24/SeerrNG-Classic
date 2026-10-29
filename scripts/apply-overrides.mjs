@@ -52,11 +52,11 @@ if (!catalog.includes(importLine)) {
 }
 
 if (!catalog.includes('  seerrNGClassic,')) {
-  const listAnchor = /^[ \\t]*seerrOrig,[ \\t]*$/m;
+  const listAnchor = /^[ \t]*seerrOrig,[ \t]*$/m;
   if (!listAnchor.test(catalog)) {
     throw new Error('Could not find seerrOrig in BUILT_IN_INTERFACE_THEME_MANIFESTS.');
   }
-  catalog = catalog.replace(listAnchor, '$1\n  seerrNGClassic,');
+  catalog = catalog.replace(listAnchor, '$&\n  seerrNGClassic,');
 }
 
 await writeFile(catalogPath, catalog, 'utf8');
