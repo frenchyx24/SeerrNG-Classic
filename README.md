@@ -8,7 +8,7 @@ This repository is an **overlay**, not a copy of the full upstream source tree. 
 
 - `overlays/themes/seerrng-classic/manifest.json`: the registered interface theme.
 - `overlays/themes/seerrng-classic/theme.css`: adapted from SeerrNG's classic Seerr visual stylesheet, with selectors namespaced to `seerrng-classic`.
-- `scripts/apply-overrides.mjs`: applies the theme, registers it with the server/frontend theme catalogs and switches the clean-install default. It is idempotent and refuses to patch a directory whose package name is not `seerrng`.
+- `scripts/apply-overrides.mjs`: applies the theme, registers it with the server/frontend theme catalogs, switches the clean-install default, and exempts server-to-self loopback API calls from the public API rate limit. It is idempotent and refuses to patch a directory whose package name is not `seerrng`.
 - `scripts/build.sh`: checks out a pinned upstream revision, applies the overlay and builds a local Docker image using the upstream Dockerfile.
 
 ## Build
@@ -39,7 +39,7 @@ WORK_DIR="$PWD/.build" sh scripts/build.sh
 
 New installs default to the classic interface. An existing account's saved interface-theme choice is intentionally not overwritten; select **SeerrNG Classic 3.5.1** under **Interface design** once after deploying this build if you want to switch that account. This is separate from **Colour palette**.
 
-The overlay does not replace or rewrite request handling, database data, authentication or media integrations. Only the default interface-theme identifier and its styling are changed.
+The overlay does not replace database data, authentication or media integrations. It changes the default interface theme and prevents the server's own loopback SSR requests from exhausting the shared public API rate-limit bucket. External clients remain rate-limited.
 
 ## Attribution
 
@@ -47,4 +47,4 @@ The classic stylesheet is adapted from SeerrNG's existing `seerrOrig` theme. The
 
 ## Validation status
 
-The overlay installer has been exercised locally against the supplied SeerrNG source tree, including a repeated run to check idempotence. A complete Docker build and full test suite have not yet been run here; the draft pull request should remain unmerged until those checks pass.
+A Docker build succeeded against the pinned SeerrNG source before the loopback rate-limit fix. The current commit is rebuilding in GitHub Actions; verify its result before deploying. The complete browser test suite has not been run here.
