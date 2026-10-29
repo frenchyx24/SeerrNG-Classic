@@ -135,6 +135,19 @@ await replaceRequired(
   'the theme identifier test'
 );
 
+await replaceRequired(
+  themeContextTestPath,
+  "defaults to SeerrOrig and validates built-in or custom theme IDs",
+  "defaults to SeerrNG Classic and validates built-in or custom theme IDs",
+  'the theme test description'
+);
+await replaceRequired(
+  themeContextTestPath,
+  "ships two separately scoped, materially different interface sheets",
+  "ships separately scoped, materially different interface sheets",
+  'the interface sheet test description'
+);
+
 let providerTest = await readFile(providerTestPath, 'utf8');
 const oldDefaultExpectation = "expect(document.documentElement.dataset.themeMode).toBe('light');\n  expect(theme.interfaceTheme).toBe('seerrOrig');\n  expect(document.documentElement.dataset.interfaceTheme).toBe('seerrOrig');";
 const newDefaultExpectation = "expect(document.documentElement.dataset.themeMode).toBe('light');\n  expect(theme.interfaceTheme).toBe('seerrng-classic');\n  expect(document.documentElement.dataset.interfaceTheme).toBe('seerrng-classic');";
