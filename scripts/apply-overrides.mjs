@@ -92,7 +92,7 @@ if (!catalog.includes(importLine)) {
   }
   catalog = catalog.replace(anchor, anchor + '\n' + importLine);
 }
-if (!catalog.includes('  seerrngClassic,')) {
+if (!catalog.includes('  seerrngClassic,') && !catalog.includes('  seerrngClassic as InterfaceThemeManifest,')) {
   const listAnchor = /^[ \t]*seerrOrig,[ \t]*$/m;
   if (!listAnchor.test(catalog)) {
     throw new Error('Could not find seerrOrig in BUILT_IN_INTERFACE_THEME_MANIFESTS.');
