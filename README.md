@@ -45,7 +45,7 @@ WORK_DIR="$PWD/.build" sh scripts/build.sh
 
 New installs default to the classic interface. An existing account's saved interface-theme choice is intentionally not overwritten; select **SeerrNG Classic 3.5.1** under **Interface design** once after deploying this build if you want to switch that account. This is separate from **Colour palette**.
 
-The overlay does not replace database data or media integrations. It changes the default theme; fixes request attribution for authenticated service-API calls that supply `X-API-User`; and lets true loopback SSR requests (without forwarded-client headers) reach metadata handlers without consuming the per-user 60/minute bucket. Browser clients routed through a reverse proxy retain the limiter. Only share the service API key with trusted systems, because a valid API key plus `X-API-User` can perform actions as the identified account.
+The overlay does not replace database data or media integrations. It fixes request attribution for authenticated service-API calls using `X-API-User`, exempts only trusted loopback SSR requests (without forwarded-client headers) from the per-user 60/minute metadata limiter, and bounds homepage discovery fetches so a network/API stall cannot leave skeleton dots indefinitely. Failed sections now show a retry option. Browser clients routed through a reverse proxy retain the limiter. Only share the service API key with trusted systems, because a valid API key plus `X-API-User` can perform actions as the identified account.
 
 ## Attribution
 
@@ -53,4 +53,4 @@ The classic stylesheet is adapted from SeerrNG's existing `seerrOrig` theme. The
 
 ## Validation status
 
-The overlay build that includes the native request-attribution change was built and pushed successfully by GitHub Actions on 2026-10-29. Image: `ghcr.io/frenchyx24/seerrng-classic:latest`. The workflow's Docker build/publish step succeeded; a complete browser test suite has not been run against a live TrueNAS instance.
+The earlier image with the native request-attribution and rate-limit fixes built successfully. The latest build also contains the legacy-theme mapping, discovery timeouts/retry notices and loading-poster sizing correction; deploy it only after the corresponding GitHub Actions run below succeeds. The complete browser test suite has not been run against a live TrueNAS instance.
