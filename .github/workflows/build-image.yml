@@ -23,9 +23,9 @@ permissions:
   packages: write
 
 concurrency:
-  # Only the newest commit should publish the moving :latest tag.
-  group: seerrng-classic-release
-  cancel-in-progress: true
+  # Isolate builds by run so a stale runner cleanup cannot block a numbered release.
+  group: seerrng-classic-${{ github.run_id }}
+  cancel-in-progress: false
 
 jobs:
   build-and-publish:
@@ -84,7 +84,6 @@ jobs:
             BUILD_VERSION=${{ steps.version.outputs.version }}
           tags: |
             ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
-            ${{ env.IMAGE_NAME }}:latest
           labels: |
             org.opencontainers.image.title=SeerrNG Classic
             org.opencontainers.image.description=SeerrNG with the classic Seerr 3.5.1 interface overlay
@@ -93,6 +92,6 @@ jobs:
 
       - name: Report published image
         run: |
-          echo "Published version: ${IMAGE_NAME}:${IMAGE_VERSION}"
-          echo "Also published: ${IMAGE_NAME}:latest"
+          echo "Published versioned image: ${IMAGE_NAME}:${IMAGE_VERSION}"
+          echo "No moving tag or commit-SHA tag is published."
           echo "Upstream ref: ${UPSTREAM_REF}"
