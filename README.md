@@ -1,66 +1,40 @@
 # SeerrNG Classic
 
-A personal SeerrNG customization that makes **SeerrNG Classic 3.5.1** the default interface for new installs and retains the current SeerrNG backend, routes, permissions, APIs and expanded media features, including anime, music and books.
+A separate SeerrNG customization intended to restore the compact Seerr 3.5.1 visual style while retaining SeerrNG's backend, permissions, requests, routes and expanded media features (anime, music, books and games).
 
-This repository is an **overlay**, not a copy of the full upstream source tree. At build time it checks out SeerrNG at a pinned upstream commit, applies the classic theme and default-theme changes, then builds using SeerrNG's own Dockerfile. The upstream repository is never modified.
+This repository is an overlay, not a copy of upstream. Each image is built from a pinned SeerrNG 3.72.5 source commit, applies only the reviewed changes listed below, and uses the upstream Dockerfile. The official `snapetech-org/seerrng` repository is never modified.
 
-## What's included
+## Current version: 1.0.2
 
-- `overlays/themes/seerrng-classic/manifest.json`: the registered interface theme.
-- `overlays/themes/seerrng-classic/theme.css`: adapted from SeerrNG's classic Seerr visual stylesheet, with selectors namespaced to `seerrng-classic`.
-- `scripts/apply-overrides.mjs`: applies the theme, registers it with the server/frontend theme catalogs, switches the clean-install default, and exempts server-to-self loopback requests from the per-user external-metadata limiter (60 requests/minute) that can otherwise turn server-rendered media pages into HTTP 500 errors. It is idempotent and refuses to patch a directory whose package name is not `seerrng`.
-- `scripts/build.sh`: checks out a pinned upstream revision, applies the overlay and builds a local Docker image using the upstream Dockerfile.
+- Version-pinned image: `ghcr.io/frenchyx24/seerrng-classic:1.0.2`
+- Convenience tag: `ghcr.io/frenchyx24/seerrng-classic:latest`
 
-## Container image
+The workflow publishes semantic version tags; it does not publish commit-SHA tags. Use the numbered tag in TrueNAS for repeatable deployments.
 
-The release version is tracked in the root `VERSION` file. Current release: **1.0.1**.
+## Fixes in 1.0.2
 
-- Version-pinned image: `ghcr.io/frenchyx24/seerrng-classic:1.0.1`
-- Moving convenience tag: `ghcr.io/frenchyx24/seerrng-classic:latest`
+- Adds the classic Seerr 3.5.1 profile as a selectable interface theme and migrates saved `seerrOrig` preferences to it in this dedicated build.
+- **Fixes the root HTTP 429/500 issue:** the global authentication middleware applies a 600/minute limiter before most API routes. Server-side rendering calls the same API over loopback and was consuming that bucket. Only loopback calls without forwarded-client headers are exempt; browser/proxy traffic stays rate-limited.
+- Keeps the previous per-user external-metadata limiter exception scoped to trusted loopback server-to-self calls; ordinary proxied browser requests remain limited.
+- Adds explicit poster dimensions to empty loading placeholders in horizontal shelves and vertical grids, so their containers cannot collapse into tiny dots.
+- Ports `X-API-User` attribution into `server/middleware/auth.ts`. A valid configured `X-API-Key` plus a valid numeric user ID selects that account for the service API request; invalid IDs fail closed and normal cookie/session authentication remains unchanged. This replaces the manual bind mount `/mnt/Apps/Apps/Seerr/auth.js` to `/app/dist/middleware/auth.js`.
+- Removes the earlier experimental discovery React overrides; data fetching and shelf rendering remain upstream behavior.
 
-The build workflow publishes semantic version tags, not commit-SHA tags. Bump `VERSION` when preparing a new release. Keep `latest` for convenient testing; use the numbered tag in TrueNAS for reproducible deployments.
+## Build workflow
 
-GitHub Container Registry packages are private by default. To pull this image anonymously from TrueNAS, set package visibility to **Public** at [the package settings](https://github.com/users/frenchyx24/packages/container/package/seerrng-classic). Otherwise, configure a GHCR login with a token that has `read:packages`.
+GitHub Actions applies the overlay to the pinned upstream source, extracts server assets, builds the Docker image and publishes the versioned tag plus `latest`.
 
-## Build
+Builds: https://github.com/frenchyx24/SeerrNG-Classic/actions
 
-Run from a machine with Git, Node.js and Docker installed:
+To release a new version, increment the root `VERSION` file and the manifest version, then push the changes. The workflow requires a stable `major.minor.patch` version.
 
-```sh
-sh scripts/build.sh
-```
+## TrueNAS deployment notes
 
-The default image tag is `frenchyx24/seerrng-classic:local`.
+- Use `ghcr.io/frenchyx24/seerrng-classic:1.0.2` for the fixed release.
+- Keep the test app's config volume separate from production.
+- If preserving custom branding from the existing instance, mount its custom `public` directory read-only at `/app/public`; it is not embedded automatically by this overlay.
+- GHCR packages are private by default. For anonymous pulls, set the package visibility to Public at [package settings](https://github.com/users/frenchyx24/packages/container/package/seerrng-classic), or configure a GHCR login with `read:packages`.
 
-You can override the upstream source/ref and image tag:
+## Validation
 
-```sh
-UPSTREAM_REF=main IMAGE_NAME=seerrng-classic:testing sh scripts/build.sh
-```
-
-For reproducible builds, keep the default pinned commit. When updating the upstream version, review the files patched by the installer and run the upstream typecheck/tests before deploying.
-
-To retain the checked-out source for inspection:
-
-```sh
-WORK_DIR="$PWD/.build" sh scripts/build.sh
-```
-
-## Existing users
-
-New installs default to the classic interface. An existing account's saved interface-theme choice is intentionally not overwritten; select **SeerrNG Classic 3.5.1** under **Interface design** once after deploying this build if you want to switch that account. This is separate from **Colour palette**.
-
-The overlay does not replace database data or media integrations. It fixes request attribution for authenticated service-API calls using `X-API-User` and exempts only trusted loopback SSR requests (without forwarded-client headers) from the per-user 60/minute metadata limiter. Browser clients routed through a reverse proxy retain the limiter. Discovery component behavior and poster-loading CSS are kept at their upstream behavior while the loading issue is isolated. Only share the service API key with trusted systems, because a valid API key plus `X-API-User` can perform actions as the identified account.
-
-## Attribution
-
-The classic stylesheet is adapted from SeerrNG's existing `seerrOrig` theme. The upstream `LICENSE` is included; preserve attribution and license terms when redistributing builds.
-
-## Validation status
-
-Release **1.0.1** was built and pushed successfully by GitHub Actions. The successful build-and-publish step used the corrected numeric `X-API-User` validation, native requester attribution, the scoped SSR metadata-rate-limit fix, the legacy theme preference mapping, and the rollback of unverified discovery UI overrides.
-
-- Versioned image: `ghcr.io/frenchyx24/seerrng-classic:1.0.1`
-- Build run: https://github.com/frenchyx24/SeerrNG-Classic/actions/runs/40874561657
-
-The image build/publish step succeeded, but the full browser workflow has not been tested against the user's live TrueNAS instance. Keep the existing SeerrNG configuration backup until the test instance has been verified.
+The overlay installer is executed by the build workflow before compilation. Version 1.0.2 specifically targets the logged 429 response to `/api/v1/movie/:id` that caused server-rendered detail pages to return 500. The GitHub Docker build validates compilation and publication, but it does not replace a live smoke test against the isolated TrueNAS instance.
