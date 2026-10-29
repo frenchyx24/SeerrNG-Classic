@@ -835,3 +835,21 @@
   :is(a, button, input, select, textarea):focus-visible {
   outline-offset: 2px;
 }
+
+
+/* A missing/late feed must not collapse the poster skeletons to tiny dots.
+   Use a safe width fallback until each discovery request returns or times out. */
+:is(:root[data-interface-theme='seerrng-classic'], [data-interface-theme='seerrng-classic'])
+  .slider-track
+  .slider-item
+  > .poster-layout[data-poster-state='loading'] {
+  display: block;
+  width: var(--poster-width, 150px);
+  min-width: var(--poster-width, 150px);
+  min-height: 200px;
+  flex: 0 0 var(--poster-width, 150px);
+  aspect-ratio: 2 / 3;
+  border: 1px solid var(--interface-border, #374151);
+  border-radius: var(--interface-poster-radius, 0.375rem);
+  background-color: #374151;
+}
