@@ -1,15 +1,15 @@
 # SeerrNG Classic
 
-A separate customization layer for SeerrNG that adds a selectable **SeerrNG Classic 3.5.1** interface theme. The aim is to bring back the compact visual language of Seerr 3.5.1 while keeping current SeerrNG routes, permissions, APIs and added media functionality, including anime, music and books.
+A personal SeerrNG customization that makes **SeerrNG Classic 3.5.1** the default interface for new installs and retains the current SeerrNG backend, routes, permissions, APIs and expanded media features, including anime, music and books.
 
-This repository is an **overlay**, not a copy of the full upstream source tree. At build time it checks out SeerrNG at a pinned upstream commit, applies the theme and catalog registration, then builds using SeerrNG's own Dockerfile. The upstream repository is never modified.
+This repository is an **overlay**, not a copy of the full upstream source tree. At build time it checks out SeerrNG at a pinned upstream commit, applies the classic theme and default-theme changes, then builds using SeerrNG's own Dockerfile. The upstream repository is never modified.
 
 ## What's included
 
-- `overlays/themes/seerrngClassic/manifest.json`: registers the theme as **SeerrNG Classic 3.5.1**.
-- `overlays/themes/seerrngClassic/theme.css`: based on SeerrNG's existing classic Seerr visual theme, with selectors namespaced to `seerrngClassic`.
-- `scripts/apply-overrides.mjs`: copies the theme into a SeerrNG checkout and adds it to the built-in interface theme catalog. The script is idempotent and refuses to patch a directory whose package name is not `seerrng`.
-- `scripts/build.sh`: clones the pinned upstream revision, applies the overlay and builds a local Docker image.
+- `overlays/themes/seerrng-classic/manifest.json`: the registered interface theme.
+- `overlays/themes/seerrng-classic/theme.css`: adapted from SeerrNG's classic Seerr visual stylesheet, with selectors namespaced to `seerrng-classic`.
+- `scripts/apply-overrides.mjs`: applies the theme, registers it with the server/frontend theme catalogs and switches the clean-install default. It is idempotent and refuses to patch a directory whose package name is not `seerrng`.
+- `scripts/build.sh`: checks out a pinned upstream revision, applies the overlay and builds a local Docker image using the upstream Dockerfile.
 
 ## Build
 
@@ -27,7 +27,7 @@ You can override the upstream source/ref and image tag:
 UPSTREAM_REF=main IMAGE_NAME=seerrng-classic:testing sh scripts/build.sh
 ```
 
-For reproducible builds, keep the default pinned commit. When updating the upstream version, review the catalog structure and run the app's typecheck/build before deploying.
+For reproducible builds, keep the default pinned commit. When updating the upstream version, review the files patched by the installer and run the upstream typecheck/tests before deploying.
 
 To retain the checked-out source for inspection:
 
@@ -35,16 +35,16 @@ To retain the checked-out source for inspection:
 WORK_DIR="$PWD/.build" sh scripts/build.sh
 ```
 
-## Enable the classic interface
+## Existing users
 
-After deploying the image, sign in to SeerrNG and open the theme picker. Under **Interface design**, select **SeerrNG Classic 3.5.1**. This is separate from the **Colour palette** option.
+New installs default to the classic interface. An existing account's saved interface-theme choice is intentionally not overwritten; select **SeerrNG Classic 3.5.1** under **Interface design** once after deploying this build if you want to switch that account. This is separate from **Colour palette**.
 
-The overlay does not alter database migrations, authentication, request handling, or media integrations. The theme remains an opt-in interface choice; existing saved user preferences are not forcibly overwritten.
+The overlay does not replace or rewrite request handling, database data, authentication or media integrations. Only the default interface-theme identifier and its styling are changed.
 
 ## Attribution
 
-The classic stylesheet is adapted from the existing SeerrNG `seerrOrig` theme and is intended to retain the upstream project's license and attribution. Check the upstream `LICENSE` and theme header when redistributing builds.
+The classic stylesheet is adapted from SeerrNG's existing `seerrOrig` theme. The upstream `LICENSE` is included; preserve attribution and license terms when redistributing builds.
 
-## Limitations
+## Validation status
 
-This repo contains the customization layer rather than all upstream application files. The build depends on access to the pinned upstream Git repository and on the upstream build toolchain. A successful Docker build should be confirmed before deploying to a production instance.
+The overlay installer has been exercised locally against the supplied SeerrNG source tree, including a repeated run to check idempotence. A complete Docker build and full test suite have not yet been run here; the draft pull request should remain unmerged until those checks pass.
