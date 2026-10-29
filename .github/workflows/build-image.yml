@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - classic-interface
+      - main
     paths:
       - 'scripts/**'
       - 'overlays/**'
