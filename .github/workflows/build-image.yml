@@ -21,8 +21,10 @@ permissions:
   packages: write
 
 concurrency:
-  group: seerrng-classic-image
-  cancel-in-progress: true
+  # Give each commit its own build group; a runner stuck during Docker cleanup
+  # must not hold a newer patched image in the pending queue.
+  group: seerrng-classic-image-${{ github.run_id }}
+  cancel-in-progress: false
 
 jobs:
   build-and-publish:
