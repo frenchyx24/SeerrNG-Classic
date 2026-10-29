@@ -52,7 +52,7 @@ if (!catalog.includes(importLine)) {
 }
 
 if (!catalog.includes('  seerrNGClassic,')) {
-  const listAnchor = /(^\s*seerrOrig,\s*$)/m;
+  const listAnchor = /^[ \\t]*seerrOrig,[ \\t]*$/m;
   if (!listAnchor.test(catalog)) {
     throw new Error('Could not find seerrOrig in BUILT_IN_INTERFACE_THEME_MANIFESTS.');
   }
