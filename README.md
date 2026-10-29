@@ -13,9 +13,14 @@ This repository is an **overlay**, not a copy of the full upstream source tree. 
 
 ## Container image
 
-The latest built image is `ghcr.io/frenchyx24/seerrng-classic:latest`. The Docker build and publish workflow succeeded on 2026-10-29 with the native requester-attribution and SSR rate-limit fixes included.
+The release version is tracked in the root `VERSION` file. Current release: **1.0.1**.
 
-GitHub Container Registry packages are private by default. To pull this image from TrueNAS without a registry login, open [the package settings](https://github.com/users/frenchyx24/packages/container/package/seerrng-classic) and change package visibility to **Public** once. If you prefer to keep the package private, configure a GHCR login with a token that has `read:packages` on the host that pulls the image.
+- Version-pinned image: `ghcr.io/frenchyx24/seerrng-classic:1.0.1`
+- Moving convenience tag: `ghcr.io/frenchyx24/seerrng-classic:latest`
+
+The build workflow publishes semantic version tags, not commit-SHA tags. Bump `VERSION` when preparing a new release. Keep `latest` for convenient testing; use the numbered tag in TrueNAS for reproducible deployments.
+
+GitHub Container Registry packages are private by default. To pull this image anonymously from TrueNAS, set package visibility to **Public** at [the package settings](https://github.com/users/frenchyx24/packages/container/package/seerrng-classic). Otherwise, configure a GHCR login with a token that has `read:packages`.
 
 ## Build
 
