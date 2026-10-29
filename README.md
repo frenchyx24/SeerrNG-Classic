@@ -58,4 +58,9 @@ The classic stylesheet is adapted from SeerrNG's existing `seerrOrig` theme. The
 
 ## Validation status
 
-The earlier image with the native request-attribution and rate-limit fixes built successfully. The latest build also contains the legacy-theme mapping, discovery timeouts/retry notices and loading-poster sizing correction; deploy it only after the corresponding GitHub Actions run below succeeds. The complete browser test suite has not been run against a live TrueNAS instance.
+Release **1.0.1** was built and pushed successfully by GitHub Actions. The successful build-and-publish step used the corrected numeric `X-API-User` validation, native requester attribution, the scoped SSR metadata-rate-limit fix, the legacy theme preference mapping, and the rollback of unverified discovery UI overrides.
+
+- Versioned image: `ghcr.io/frenchyx24/seerrng-classic:1.0.1`
+- Build run: https://github.com/frenchyx24/SeerrNG-Classic/actions/runs/40874561657
+
+The image build/publish step succeeded, but the full browser workflow has not been tested against the user's live TrueNAS instance. Keep the existing SeerrNG configuration backup until the test instance has been verified.
