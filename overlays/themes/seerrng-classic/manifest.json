@@ -1,0 +1,12 @@
+{
+  "formatVersion": 1,
+  "themeApiVersion": 1,
+  "id": "seerrng-classic",
+  "name": "SeerrNG Classic 3.5.1",
+  "description": "Compact classic Seerr 3.5.1 interface, preserving SeerrNG functionality.",
+  "version": "1.0.0",
+  "author": "Frenchyx",
+  "license": "MIT",
+  "navigation": "flat",
+  "activeNavigationIcon": "outline"
+}
