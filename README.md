@@ -45,7 +45,7 @@ WORK_DIR="$PWD/.build" sh scripts/build.sh
 
 New installs default to the classic interface. An existing account's saved interface-theme choice is intentionally not overwritten; select **SeerrNG Classic 3.5.1** under **Interface design** once after deploying this build if you want to switch that account. This is separate from **Colour palette**.
 
-The overlay does not replace database data or media integrations. It fixes request attribution for authenticated service-API calls using `X-API-User`, exempts only trusted loopback SSR requests (without forwarded-client headers) from the per-user 60/minute metadata limiter, and bounds homepage discovery fetches so a network/API stall cannot leave skeleton dots indefinitely. Failed sections now show a retry option. Browser clients routed through a reverse proxy retain the limiter. Only share the service API key with trusted systems, because a valid API key plus `X-API-User` can perform actions as the identified account.
+The overlay does not replace database data or media integrations. It fixes request attribution for authenticated service-API calls using `X-API-User` and exempts only trusted loopback SSR requests (without forwarded-client headers) from the per-user 60/minute metadata limiter. Browser clients routed through a reverse proxy retain the limiter. Discovery component behavior and poster-loading CSS are kept at their upstream behavior while the loading issue is isolated. Only share the service API key with trusted systems, because a valid API key plus `X-API-User` can perform actions as the identified account.
 
 ## Attribution
 
