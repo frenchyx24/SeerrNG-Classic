@@ -210,12 +210,6 @@
   gap: var(--interface-grid-gap);
 }
 
-:is(:root[data-interface-theme='seerrng-classic'], [data-interface-theme='seerrng-classic'])
-  ul.cards-vertical {
-  grid-template-columns: repeat(auto-fill, minmax(var(--poster-width), 1fr));
-  justify-content: start;
-}
-
 /* Orig keeps controls and catalog shelves in the classic, roomier flow. */
 :is(:root[data-interface-theme='seerrng-classic'], [data-interface-theme='seerrng-classic'])
   .app-pinned-filter-group {
@@ -241,12 +235,6 @@
   .app-filter-row {
   align-items: stretch;
   gap: 0.75rem;
-}
-
-:is(:root[data-interface-theme='seerrng-classic'], [data-interface-theme='seerrng-classic'])
-  ul.cards-vertical {
-  grid-template-columns: repeat(auto-fill, minmax(var(--poster-width), 1fr));
-  gap: var(--interface-grid-gap);
 }
 
 :is(:root[data-interface-theme='seerrng-classic'], [data-interface-theme='seerrng-classic'])
@@ -853,3 +841,8 @@
   aspect-ratio: var(--poster-aspect-ratio, 2 / 3);
   flex: 0 0 var(--poster-width, 150px);
 }
+
+/* Respect the current shared poster-grid sizing. The shared stylesheet owns
+   grid-template-columns, because newer SeerrNG releases use fixed poster widths
+   to prevent cards stretching/overlapping on Movies, Series, and other grids. */
+
