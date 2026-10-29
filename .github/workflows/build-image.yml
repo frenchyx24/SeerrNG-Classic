@@ -7,6 +7,7 @@ on:
     paths:
       - 'scripts/**'
       - 'overlays/**'
+      - 'VERSION'
       - '.github/workflows/build-image.yml'
   workflow_dispatch:
     inputs:
@@ -21,10 +22,9 @@ permissions:
   packages: write
 
 concurrency:
-  # Give each commit its own build group; a runner stuck during Docker cleanup
-  # must not hold a newer patched image in the pending queue.
-  group: seerrng-classic-image-${{ github.run_id }}
-  cancel-in-progress: false
+  # Only one build may publish :latest or a release tag at a time.
+  group: seerrng-classic-image
+  cancel-in-progress: true
 
 jobs:
   build-and-publish:
@@ -39,6 +39,19 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Read and validate release version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          IMAGE_VERSION="$(tr -d '[:space:]' < VERSION)"
+          if [[ ! "$IMAGE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "VERSION must contain a stable semantic version such as 1.0.1; found: $IMAGE_VERSION" >&2
+            exit 1
+          fi
+          echo "version=$IMAGE_VERSION" >> "$GITHUB_OUTPUT"
+          echo "IMAGE_VERSION=$IMAGE_VERSION" >> "$GITHUB_ENV"
 
       - name: Fetch pinned SeerrNG source and apply overlay
         shell: bash
@@ -67,16 +80,18 @@ jobs:
           push: true
           build-args: |
             COMMIT_TAG=${{ env.UPSTREAM_REF }}
-            BUILD_VERSION=classic
+            BUILD_VERSION=${{ steps.version.outputs.version }}
           tags: |
+            ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
             ${{ env.IMAGE_NAME }}:latest
-            ${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
           labels: |
             org.opencontainers.image.title=SeerrNG Classic
             org.opencontainers.image.description=SeerrNG with the classic Seerr 3.5.1 interface overlay
+            org.opencontainers.image.version=${{ steps.version.outputs.version }}
             org.opencontainers.image.source=https://github.com/frenchyx24/SeerrNG-Classic
 
       - name: Report published image
         run: |
-          echo "Published image: ${IMAGE_NAME}:latest"
+          echo "Published version: ${IMAGE_NAME}:${IMAGE_VERSION}"
+          echo "Also published: ${IMAGE_NAME}:latest"
           echo "Upstream ref: ${UPSTREAM_REF}"
