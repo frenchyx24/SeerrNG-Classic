@@ -39,7 +39,7 @@ WORK_DIR="$PWD/.build" sh scripts/build.sh
 
 New installs default to the classic interface. An existing account's saved interface-theme choice is intentionally not overwritten; select **SeerrNG Classic 3.5.1** under **Interface design** once after deploying this build if you want to switch that account. This is separate from **Colour palette**.
 
-The overlay does not replace database data, authentication or media integrations. It changes the default interface theme and lets loopback SSR requests reach the metadata handlers without consuming the per-user 60/minute browser-request bucket. External browser clients remain rate-limited.
+The overlay does not replace database data, authentication or media integrations. It changes the default interface theme and lets true loopback SSR requests (without forwarded-client headers) reach metadata handlers without consuming the per-user 60/minute bucket. Browser clients routed through a reverse proxy retain the limiter.
 
 ## Attribution
 
