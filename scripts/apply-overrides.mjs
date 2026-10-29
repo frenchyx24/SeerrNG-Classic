@@ -88,7 +88,7 @@ await replaceRequired(
     } else {
       const requestedUserId = Number(apiUserHeader);
       const validRequestedUserId =
-        /^[1-9]\\d*$/.test(apiUserHeader) &&
+        /^[1-9]\d*$/.test(apiUserHeader) &&
         Number.isSafeInteger(requestedUserId);
 
       user = validRequestedUserId
