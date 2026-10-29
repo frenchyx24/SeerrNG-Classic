@@ -22,6 +22,7 @@ const providerTestPath = path.join(sourceRoot, 'src/context/ThemeProvider.vitest
 const documentPath = path.join(sourceRoot, 'src/pages/_document.tsx');
 const profileTestPath = path.join(sourceRoot, 'src/styles/interfaceThemeProfiles.test.mjs');
 const routesIndexPath = path.join(sourceRoot, 'server/routes/index.ts');
+const authMiddlewarePath = path.join(sourceRoot, 'server/middleware/auth.ts');
 const manifestSource = path.join(overlayRoot, 'overlays/themes/seerrng-classic/manifest.json');
 const cssSource = path.join(overlayRoot, 'overlays/themes/seerrng-classic/theme.css');
 
@@ -61,6 +62,41 @@ await replaceRequired(
   "skip: () =>\n    process.env.NODE_ENV === 'test' || process.env.E2E_TESTS === 'true',\n  keyGenerator: (req) => `user:${req.user!.id}`,",
   "skip: (req) => {\n    const remoteAddress = req.socket.remoteAddress?.toLowerCase();\n    const hasForwardedClientAddress = Boolean(\n      req.headers['x-forwarded-for'] ||\n      req.headers['x-real-ip'] ||\n      req.headers.forwarded\n    );\n    const isLoopbackInternalRequest =\n      !hasForwardedClientAddress &&\n      (remoteAddress === '127.0.0.1' ||\n        remoteAddress === '::1' ||\n        remoteAddress === '::ffff:127.0.0.1');\n    return (\n      isLoopbackInternalRequest ||\n      process.env.NODE_ENV === 'test' ||\n      process.env.E2E_TESTS === 'true'\n    );\n  },\n  keyGenerator: (req) => `user:${req.user!.id}`,",
   'per-user external metadata limiter for internal SSR requests'
+);
+
+// Native fix for SeerrNG's request attribution issue: when a trusted internal/API-key
+// caller explicitly supplies X-API-User, bind the request to that existing user.
+// The header is ignored unless the actual configured X-API-Key has authenticated;
+// ordinary cookie/session authentication continues to use the signed-in session.
+await replaceRequired(
+  authMiddlewarePath,
+  `if (apiKeyAuthenticated) {
+    const userRepository = getRepository(User);
+
+    // API key access is a service-level credential. Keep it bound to the
+    // owner account instead of allowing callers to impersonate arbitrary users.
+    user = await userRepository.findOne({ where: { id: 1 } });
+  } else if (!apiKeyProvided && req.session?.userId) {`,
+  `if (apiKeyAuthenticated) {
+    const userRepository = getRepository(User);
+    const apiUserHeader = req.header('X-API-User');
+
+    // The service API key is required before user attribution can be overridden.
+    // Invalid or unknown user IDs fail closed rather than silently using account 1.
+    if (apiUserHeader === undefined) {
+      user = await userRepository.findOne({ where: { id: 1 } });
+    } else {
+      const requestedUserId = Number(apiUserHeader);
+      const validRequestedUserId =
+        /^[1-9]\\d*$/.test(apiUserHeader) &&
+        Number.isSafeInteger(requestedUserId);
+
+      user = validRequestedUserId
+        ? await userRepository.findOne({ where: { id: requestedUserId } })
+        : null;
+    }
+  } else if (!apiKeyProvided && req.session?.userId) {`,
+  'authenticated X-API-User attribution in auth middleware'
 );
 
 const targetThemeDir = path.join(sourceRoot, 'themes/seerrng-classic');
