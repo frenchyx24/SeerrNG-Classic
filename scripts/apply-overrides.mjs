@@ -101,6 +101,15 @@ if (!catalog.includes('  seerrngClassic,')) {
 }
 await writeFile(catalogPath, catalog, 'utf8');
 
+// JSON-imported manifests widen numeric fields in TypeScript. Validate the manifest
+// schema at runtime, then narrow the built-in catalog entries to its declared type.
+await replaceRequired(
+  catalogPath,
+  "  seerrOrig,\n  seerrngClassic,\n  seerrNGJ,",
+  "  seerrOrig as InterfaceThemeManifest,\n  seerrngClassic as InterfaceThemeManifest,\n  seerrNGJ as InterfaceThemeManifest,",
+  'built-in manifest literal types'
+);
+
 // Preserve SeerrOrig's accent/preset behavior when the new theme is active.
 await replaceRequired(
   themeContextPath,
