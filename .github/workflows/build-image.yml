@@ -1,0 +1,97 @@
+name: Build and publish SeerrNG Classic
+
+on:
+  push:
+    branches:
+      - classic-interface
+      - main
+    paths:
+      - 'scripts/**'
+      - 'overlays/**'
+      - 'VERSION'
+      - '.github/workflows/build-image.yml'
+  workflow_dispatch:
+    inputs:
+      upstream_ref:
+        description: 'SeerrNG commit SHA or ref to build against'
+        required: true
+        default: '471271589e28a77a2e1564b2ef4e1c152e7cf103'
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  # Isolate builds by run so a stale runner cleanup cannot block a numbered release.
+  group: seerrng-classic-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      UPSTREAM_REF: ${{ github.event.inputs.upstream_ref || '471271589e28a77a2e1564b2ef4e1c152e7cf103' }}
+      IMAGE_NAME: ghcr.io/frenchyx24/seerrng-classic
+    steps:
+      - name: Check out customization repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Read and validate release version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          IMAGE_VERSION="$(tr -d '[:space:]' < VERSION)"
+          if [[ ! "$IMAGE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "VERSION must contain a stable semantic version such as 1.0.1; found: $IMAGE_VERSION" >&2
+            exit 1
+          fi
+          echo "version=$IMAGE_VERSION" >> "$GITHUB_OUTPUT"
+          echo "IMAGE_VERSION=$IMAGE_VERSION" >> "$GITHUB_ENV"
+
+      - name: Fetch pinned SeerrNG source and apply overlay
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="${RUNNER_TEMP}/seerrng-source"
+          git clone --filter=blob:none https://github.com/snapetech-org/seerrng.git "$SRC"
+          git -C "$SRC" fetch --depth 1 origin "$UPSTREAM_REF"
+          git -C "$SRC" checkout --detach FETCH_HEAD
+          node scripts/apply-overrides.mjs "$SRC"
+          echo "SOURCE_DIR=$SRC" >> "$GITHUB_ENV"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and publish image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ runner.temp }}/seerrng-source
+          file: ${{ runner.temp }}/seerrng-source/Dockerfile
+          platforms: linux/amd64
+          push: true
+          build-args: |
+            COMMIT_TAG=${{ env.UPSTREAM_REF }}
+            BUILD_VERSION=${{ steps.version.outputs.version }}
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
+          labels: |
+            org.opencontainers.image.title=SeerrNG Classic
+            org.opencontainers.image.description=SeerrNG with the classic Seerr 3.5.1 interface overlay
+            org.opencontainers.image.version=${{ steps.version.outputs.version }}
+            org.opencontainers.image.source=https://github.com/frenchyx24/SeerrNG-Classic
+
+      - name: Report published image
+        run: |
+          echo "Published versioned image: ${IMAGE_NAME}:${IMAGE_VERSION}"
+          echo "No moving tag or commit-SHA tag is published."
+          echo "Upstream ref: ${UPSTREAM_REF}"
