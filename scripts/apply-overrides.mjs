@@ -22,6 +22,7 @@ const providerTestPath = path.join(sourceRoot, 'src/context/ThemeProvider.vitest
 const documentPath = path.join(sourceRoot, 'src/pages/_document.tsx');
 const profileTestPath = path.join(sourceRoot, 'src/styles/interfaceThemeProfiles.test.mjs');
 const serverIndexPath = path.join(sourceRoot, 'server/index.ts');
+const routesIndexPath = path.join(sourceRoot, 'server/routes/index.ts');
 const manifestSource = path.join(overlayRoot, 'overlays/themes/seerrng-classic/manifest.json');
 const cssSource = path.join(overlayRoot, 'overlays/themes/seerrng-classic/theme.css');
 
@@ -61,6 +62,17 @@ await replaceRequired(
   "skip: () =>\n    process.env.NODE_ENV === 'test' || process.env.E2E_TESTS === 'true',",
   "skip: (req) => {\n    const remoteAddress = req.socket.remoteAddress?.toLowerCase();\n    const isLoopbackRequest =\n      remoteAddress === '127.0.0.1' ||\n      remoteAddress === '::1' ||\n      remoteAddress === '::ffff:127.0.0.1';\n    return (\n      isLoopbackRequest ||\n      process.env.NODE_ENV === 'test' ||\n      process.env.E2E_TESTS === 'true'\n    );\n  },",
   'API rate limit for internal loopback requests'
+);
+
+// The metadata limiter is stricter (60/minute) and is shared by all metadata
+// endpoints per user. A single SSR render can call the loopback API repeatedly;
+// allow these server-to-self calls through while retaining the user limit for
+// requests arriving from browsers and other clients.
+await replaceRequired(
+  routesIndexPath,
+  "skip: () =>\n    process.env.NODE_ENV === 'test' || process.env.E2E_TESTS === 'true',\n  keyGenerator: (req) => `user:${req.user!.id}`,",
+  "skip: (req) => {\n    const remoteAddress = req.socket.remoteAddress?.toLowerCase();\n    const isLoopbackRequest =\n      remoteAddress === '127.0.0.1' ||\n      remoteAddress === '::1' ||\n      remoteAddress === '::ffff:127.0.0.1';\n    return (\n      isLoopbackRequest ||\n      process.env.NODE_ENV === 'test' ||\n      process.env.E2E_TESTS === 'true'\n    );\n  },\n  keyGenerator: (req) => `user:${req.user!.id}`,",
+  'per-user external metadata limiter for internal SSR requests'
 );
 
 const targetThemeDir = path.join(sourceRoot, 'themes/seerrng-classic');
