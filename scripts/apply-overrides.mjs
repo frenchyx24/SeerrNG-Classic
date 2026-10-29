@@ -110,144 +110,30 @@ await replaceRequired(
   'authenticated X-API-User attribution in auth middleware'
 );
 
-const targetThemeDir = path.join(sourceRoot, 'themes/seerrng-classic');
-await mkdir(targetThemeDir, { recursive: true });
-await cp(manifestSource, path.join(targetThemeDir, 'manifest.json'));
-await cp(cssSource, path.join(targetThemeDir, 'theme.css'));
+// Keep the built-in SeerrOrig theme ID and its known stylesheet route. The
+// first overlay introduced a new theme ID plus preference migration; remove those
+// moving parts and apply our scoped CSS directly to the built-in theme instead.
+const stockThemeDir = path.join(sourceRoot, 'themes/seerrOrig');
+await mkdir(stockThemeDir, { recursive: true });
 
-// Register the theme with the server registry. A built-in theme must be listed here
-// (a picker-only catalog entry would be silently rejected by the server).
-await replaceRequired(
-  interfaceThemePath,
-  "export const DEFAULT_INTERFACE_THEME_ID = 'seerrOrig';",
-  "export const DEFAULT_INTERFACE_THEME_ID = 'seerrng-classic';",
-  'the default interface theme'
-);
-await replaceRequired(
-  interfaceThemePath,
-  "export const INTERFACE_THEME_IDS = ['seerrOrig', 'seerrNGJ'] as const;",
-  "export const INTERFACE_THEME_IDS = ['seerrOrig', 'seerrNGJ', 'seerrng-classic'] as const;",
-  'the built-in theme allowlist'
+const classicManifest = JSON.parse(await readFile(manifestSource, 'utf8'));
+classicManifest.id = 'seerrOrig';
+classicManifest.name = 'SeerrNG Classic';
+classicManifest.version = '1.0.4';
+await writeFile(
+  path.join(stockThemeDir, 'manifest.json'),
+  JSON.stringify(classicManifest, null, 2) + '\n',
+  'utf8'
 );
 
-// Keep the server-rendered first paint in sync with the client default.
-let document = await readFile(documentPath, 'utf8');
-if (!document.includes("data-interface-theme='seerrng-classic'") &&
-    !document.includes('data-interface-theme="seerrng-classic"')) {
-  if (!document.includes('seerrOrig')) {
-    throw new Error('Could not safely update the default theme stylesheet in _document.tsx.');
-  }
-  document = document.replaceAll('seerrOrig', 'seerrng-classic');
-  await writeFile(documentPath, document, 'utf8');
+let classicCss = await readFile(cssSource, 'utf8');
+classicCss = classicCss.replaceAll('seerrng-classic', 'seerrOrig');
+if (!classicCss.includes(":root[data-interface-theme='seerrOrig']")) {
+  throw new Error('Classic stylesheet did not normalize to the built-in SeerrOrig scope.');
 }
+await writeFile(path.join(stockThemeDir, 'theme.css'), classicCss, 'utf8');
 
-// Register the manifest in the frontend fallback catalog.
-let catalog = await readFile(catalogPath, 'utf8');
-const importLine = "import seerrngClassic from '../../themes/seerrng-classic/manifest.json';";
-if (!catalog.includes(importLine)) {
-  const anchor = "import seerrOrig from '../../themes/seerrOrig/manifest.json';";
-  if (!catalog.includes(anchor)) {
-    throw new Error('Could not find the SeerrOrig manifest import in interfaceThemeCatalog.ts.');
-  }
-  catalog = catalog.replace(anchor, anchor + '\n' + importLine);
-}
-if (!catalog.includes('  seerrngClassic,') && !catalog.includes('  seerrngClassic as InterfaceThemeManifest,')) {
-  const listAnchor = /^[ \t]*seerrOrig,[ \t]*$/m;
-  if (!listAnchor.test(catalog)) {
-    throw new Error('Could not find seerrOrig in BUILT_IN_INTERFACE_THEME_MANIFESTS.');
-  }
-  catalog = catalog.replace(listAnchor, '$&\n  seerrngClassic,');
-}
-await writeFile(catalogPath, catalog, 'utf8');
-
-// JSON-imported manifests widen numeric fields in TypeScript. Validate the manifest
-// schema at runtime, then narrow the built-in catalog entries to its declared type.
-await replaceRequired(
-  catalogPath,
-  "  seerrOrig,\n  seerrngClassic,\n  seerrNGJ,",
-  "  seerrOrig as InterfaceThemeManifest,\n  seerrngClassic as InterfaceThemeManifest,\n  seerrNGJ as InterfaceThemeManifest,",
-  'built-in manifest literal types'
-);
-
-// Preserve SeerrOrig's accent/preset behavior when the new theme is active.
-await replaceRequired(
-  themeContextPath,
-  "interfaceTheme === 'seerrOrig' && palette === DEFAULT_THEME_PALETTE_ID",
-  "(interfaceTheme === 'seerrOrig' || interfaceTheme === 'seerrng-classic') && palette === DEFAULT_THEME_PALETTE_ID",
-  'classic accent behavior'
-);
-await replaceRequired(
-  themeContextPath,
-  "else if (interfaceTheme === 'seerrOrig' && overrides?.preset)",
-  "else if ((interfaceTheme === 'seerrOrig' || interfaceTheme === 'seerrng-classic') && overrides?.preset)",
-  'classic preset behavior'
-);
-
-// Keep the explicit contract tests aligned with the new built-in default.
-await replaceRequired(
-  themeContextTestPath,
-  "assert.equal(DEFAULT_INTERFACE_THEME_ID, 'seerrOrig');",
-  "assert.equal(DEFAULT_INTERFACE_THEME_ID, 'seerrng-classic');",
-  'the default-theme test'
-);
-await replaceRequired(
-  themeContextTestPath,
-  "assert.deepEqual(INTERFACE_THEME_IDS, ['seerrOrig', 'seerrNGJ']);",
-  "assert.deepEqual(INTERFACE_THEME_IDS, ['seerrOrig', 'seerrNGJ', 'seerrng-classic']);",
-  'the theme allowlist test'
-);
-await replaceRequired(
-  themeContextTestPath,
-  "assert.equal(parseInterfaceTheme('seerrNGJ'), 'seerrNGJ');",
-  "assert.equal(parseInterfaceTheme('seerrNGJ'), 'seerrNGJ');\n    assert.equal(parseInterfaceTheme('seerrng-classic'), 'seerrng-classic');",
-  'the theme identifier test'
-);
-
-await replaceRequired(
-  themeContextTestPath,
-  "defaults to SeerrOrig and validates built-in or custom theme IDs",
-  "defaults to SeerrNG Classic and validates built-in or custom theme IDs",
-  'the theme test description'
-);
-await replaceRequired(
-  themeContextTestPath,
-  "ships two separately scoped, materially different interface sheets",
-  "ships separately scoped, materially different interface sheets",
-  'the interface sheet test description'
-);
-
-let providerTest = await readFile(providerTestPath, 'utf8');
-const oldDefaultExpectation = "expect(document.documentElement.dataset.themeMode).toBe('light');\n  expect(theme.interfaceTheme).toBe('seerrOrig');\n  expect(document.documentElement.dataset.interfaceTheme).toBe('seerrOrig');";
-const newDefaultExpectation = "expect(document.documentElement.dataset.themeMode).toBe('light');\n  expect(theme.interfaceTheme).toBe('seerrng-classic');\n  expect(document.documentElement.dataset.interfaceTheme).toBe('seerrng-classic');";
-if (providerTest.includes(oldDefaultExpectation)) {
-  providerTest = providerTest.replace(oldDefaultExpectation, newDefaultExpectation);
-  await writeFile(providerTestPath, providerTest, 'utf8');
-} else if (!providerTest.includes(newDefaultExpectation)) {
-  throw new Error('Could not safely update the default-theme provider test.');
-}
-
-await replaceRequired(
-  profileTestPath,
-  "/api\\/v1\\/interface-themes\\/seerrOrig\\/theme\\.css/",
-  "/api\\/v1\\/interface-themes\\/seerrng-classic\\/theme\\.css/",
-  'the server-rendered theme stylesheet test'
-);
-
-// Existing database backups may carry the stock seerrOrig preference. In this
-// dedicated Classic build, map that legacy preference to the packaged stylesheet
-// so current users receive the actual custom profile without manual theme selection.
-await replaceRequired(
-  themeContextPath,
-  "const savedInterfaceTheme =\n      parseInterfaceTheme(user?.settings?.interfaceTheme) ??\n      DEFAULT_INTERFACE_THEME_ID;",
-  "const parsedSavedInterfaceTheme =\n      parseInterfaceTheme(user?.settings?.interfaceTheme) ??\n      DEFAULT_INTERFACE_THEME_ID;\n    const savedInterfaceTheme =\n      parsedSavedInterfaceTheme === 'seerrOrig'\n        ? 'seerrng-classic'\n        : parsedSavedInterfaceTheme;",
-  'legacy saved interface theme migration'
-);
-
-// Leave upstream discovery fetching and shelf rendering unchanged until the original runtime failure is isolated.
-
-
-
-console.log('SeerrNG Classic 3.5.1 overlay applied.');
-console.log('Default interface theme: seerrng-classic');
+console.log('SeerrNG Classic 1.0.4 overlay applied.');
+console.log('Interface: built-in SeerrOrig ID with the Classic stylesheet.');
 console.log('Routes, APIs, permissions and media handling remain SeerrNG.');
 
