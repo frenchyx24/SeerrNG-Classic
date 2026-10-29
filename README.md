@@ -7,9 +7,8 @@ This repository is an overlay, not a copy of upstream. Each image is built from 
 ## Current version: 1.0.2
 
 - Version-pinned image: `ghcr.io/frenchyx24/seerrng-classic:1.0.2`
-- Convenience tag: `ghcr.io/frenchyx24/seerrng-classic:latest`
 
-The workflow publishes semantic version tags; it does not publish commit-SHA tags. Use the numbered tag in TrueNAS for repeatable deployments.
+The workflow publishes only semantic-version image tags. It does not publish a moving `latest` tag or commit-SHA tags. Use the numbered tag in TrueNAS for repeatable deployments.
 
 ## Fixes in 1.0.2
 
