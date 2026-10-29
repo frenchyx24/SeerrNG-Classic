@@ -136,8 +136,8 @@ await replaceRequired(
 );
 
 let providerTest = await readFile(providerTestPath, 'utf8');
-const oldDefaultExpectation = "expect(theme.interfaceTheme).toBe('seerrOrig');\n  expect(document.documentElement.dataset.interfaceTheme).toBe('seerrOrig');";
-const newDefaultExpectation = "expect(theme.interfaceTheme).toBe('seerrng-classic');\n  expect(document.documentElement.dataset.interfaceTheme).toBe('seerrng-classic');";
+const oldDefaultExpectation = "expect(document.documentElement.dataset.themeMode).toBe('light');\n  expect(theme.interfaceTheme).toBe('seerrOrig');\n  expect(document.documentElement.dataset.interfaceTheme).toBe('seerrOrig');";
+const newDefaultExpectation = "expect(document.documentElement.dataset.themeMode).toBe('light');\n  expect(theme.interfaceTheme).toBe('seerrng-classic');\n  expect(document.documentElement.dataset.interfaceTheme).toBe('seerrng-classic');";
 if (providerTest.includes(oldDefaultExpectation)) {
   providerTest = providerTest.replace(oldDefaultExpectation, newDefaultExpectation);
   await writeFile(providerTestPath, providerTest, 'utf8');
