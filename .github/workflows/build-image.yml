@@ -23,10 +23,9 @@ permissions:
   packages: write
 
 concurrency:
-  # Build runs are isolated: a stale Docker Buildx cleanup must not block a
-  # newer pinned-version release. The numbered tag is immutable by convention.
-  group: seerrng-classic-image-${{ github.run_id }}
-  cancel-in-progress: false
+  # Only the newest commit should publish the moving :latest tag.
+  group: seerrng-classic-release
+  cancel-in-progress: true
 
 jobs:
   build-and-publish:
