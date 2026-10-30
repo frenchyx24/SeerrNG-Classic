@@ -22,13 +22,34 @@ if (!css.includes(cssMarker)) {
   ].join('\n');
   fs.writeFileSync(cssPath, css, 'utf8');
 }
+const specPath = '/app/seerr-api.yml';
+let spec = fs.readFileSync(specPath, 'utf8');
+const idParameter = [
+  '        - in: path',
+  '          name: id',
+  '          required: true',
+  '          schema:',
+  '            type: string',
+].join('\n');
+const versionParameter = [
+  '        - in: query',
+  '          name: v',
+  '          required: false',
+  '          schema:',
+  '            type: string',
+].join('\n');
+if (!spec.includes(versionParameter)) {
+  if (!spec.includes(idParameter)) throw new Error('Theme stylesheet id parameter not found in OpenAPI spec');
+  spec = spec.replace(idParameter, idParameter + '\n' + versionParameter);
+  fs.writeFileSync(specPath, spec, 'utf8');
+}
 const documentPath = '/app/.next/server/pages/_document.js';
 const oldHref = 'href:"/api/v1/interface-themes/seerrng-classic/theme.css"';
-const newHref = 'href:"/api/v1/interface-themes/seerrng-classic/theme.css?v=1.0.6"';
+const newHref = 'href:"/api/v1/interface-themes/seerrng-classic/theme.css?v=1.0.7"';
 let document = fs.readFileSync(documentPath, 'utf8');
 if (!document.includes(newHref)) {
   if (!document.includes(oldHref)) throw new Error('Theme stylesheet link not found in compiled document');
   document = document.replace(oldHref, newHref);
   fs.writeFileSync(documentPath, document, 'utf8');
 }
-console.log('Applied homepage carousel sizing and versioned theme stylesheet URL.');
+console.log('Applied homepage carousel sizing, cache busting, and OpenAPI query parameter.');

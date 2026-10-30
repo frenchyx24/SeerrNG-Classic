@@ -28,4 +28,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/frenchyx24/seerrng-classic:1.0.6
+          tags: ghcr.io/frenchyx24/seerrng-classic:1.0.7
