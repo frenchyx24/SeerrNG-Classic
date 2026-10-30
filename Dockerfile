@@ -1,4 +1,4 @@
-FROM ghcr.io/frenchyx24/seerrng-classic:1.3.0
+FROM ghcr.io/frenchyx24/seerrng-classic:1.4.0
 
 USER root
 COPY quiet-cinema.css /tmp/quiet-cinema.css
