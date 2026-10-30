@@ -8,6 +8,7 @@ on:
       - quiet-cinema.css
       - install-quiet-cinema.cjs
       - fr-overrides.json
+      - README.md
       - .github/workflows/publish-theme-fix.yml
   workflow_dispatch:
 
@@ -30,4 +31,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/frenchyx24/seerrng-classic:1.7.0
+          tags: ghcr.io/frenchyx24/seerrng-classic:1.8.0

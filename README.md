@@ -1,6 +1,6 @@
 # SeerrNG Quiet Cinema
 
-Quiet Cinema 1.7 is a restrained, responsive theme for SeerrNG. It removes decorative layers, preserves core request and navigation features, and completes the missing French UI messages.
+Quiet Cinema 1.8 is a responsive SeerrNG interface inspired by your reference: cinematic featured media, tighter poster rows, a compact sidebar and touch-friendly mobile navigation. It also completes missing French UI messages.
 
 ## Changes in 1.6.0
 
@@ -21,3 +21,11 @@ Image: `ghcr.io/frenchyx24/seerrng-classic:1.6.0`
 - Preserved existing French translations and message placeholders.
 
 Image: `ghcr.io/frenchyx24/seerrng-classic:1.7.0`
+
+## Changes in 1.8.0
+
+- Reworked the dark palette with violet accents, a compact header and a cinematic featured slider.
+- Refined poster rows, desktop navigation, and the mobile bottom navigation to match the supplied reference.
+- Kept SeerrNG's native search, browsing, request, and media actions.
+
+Image: `ghcr.io/frenchyx24/seerrng-classic:1.8.0`
