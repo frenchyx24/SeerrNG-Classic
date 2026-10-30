@@ -1,3 +1,4 @@
+successfully downloaded text file (SHA: e3c5d828c8beaa6c3948ef9af6fe40c5daaa27dc)
 /* SeerrNG Classic — Quiet Cinema 1.5
    Restrained cinema interface; presentation only, native features remain visible. */
 :root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']{color-scheme:dark;--interface-page:#101113;--interface-panel:#17191b;--interface-panel-raised:#202224;--interface-border:#303234;--interface-text:#f0eee8;--interface-muted:#a5a39d;--interface-link:#d4b875;--interface-accent-a:#c5a45d;--interface-accent-b:#e3cc91;--interface-sidebar-top:#141618;--interface-sidebar-bottom:#101113;--interface-sidebar-selected:rgb(197 164 93/.12);--interface-table-header:#1c1e20;--interface-table-hover:rgb(255 255 255/.035);--interface-sidebar-width:14.5rem;--interface-page-gutter:clamp(1rem,3vw,2rem);--interface-grid-gap:clamp(.7rem,1.6vw,1rem);--interface-section-gap:1.5rem;--interface-card-radius:.55rem;--interface-poster-radius:.35rem;--interface-control-radius:.45rem;--interface-main-card-padding:1rem;--interface-inset-card-padding:.75rem;--interface-detail-row-gap:.4rem;--interface-motion-duration:140ms;--poster-width:156px;--poster-aspect-ratio:2/3;--app-card-frame-width:0;--app-card-frame-background:transparent}
@@ -39,6 +40,14 @@
 :is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .app-card-poster-active{transform:translateY(-2px);filter:none;box-shadow:none}
 :is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .poster-layout [data-poster-region='overlay']{background:linear-gradient(180deg,transparent 48%,rgb(0 0 0/.72) 100%)}
 :is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .poster-layout [data-poster-region='title']{color:#fff;font-size:.88rem;font-weight:650;line-height:1.3;text-shadow:0 1px 4px #000}
+/* Clean poster surfaces across films, series, books, music and artist cards. */
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .title-card-shell [data-poster-region='type-slot'],
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) [data-poster-state] [data-poster-region='type-slot'],
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .artist-card [data-poster-region='type-slot']{display:none!important}
+/* Hide only title visibility, never slider filters or other actions. */
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .slider-header button.app-filter-button[aria-label*='Title View'],
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .slider-header button.app-filter-button[aria-label*='Affichage du titre'],
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .slider-header button.app-filter-button[aria-pressed]{display:none!important}
 /* Media details: one surface, readable metadata, no nested framed cards. */
 :is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .media-detail-card{overflow:hidden;border:1px solid var(--interface-border);border-radius:var(--interface-card-radius);background:var(--interface-panel);box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
 :is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .media-detail-card :is(.detail-summary-card,.app-detail-summary-grid){display:grid;grid-template-columns:minmax(0,1fr);align-items:center;justify-items:center;gap:1rem;border:0;background:transparent;box-shadow:none;text-align:center}
