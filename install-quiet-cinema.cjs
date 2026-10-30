@@ -4,23 +4,24 @@ const vm=require('node:vm');
 const src='/tmp/quiet-cinema.css';
 const dst='/app/dist/interface-themes/seerrng-classic/theme.css';
 const css=fs.readFileSync(src,'utf8');
-for(const x of ['Quiet Cinema 1.8','.media-detail-card','.cards-horizontal','type-slot','Title View','association-badge','media-detail-artwork-layer','cinematic home']) if(!css.includes(x)) throw Error('Missing theme section '+x);
+for(const x of ['Quiet Cinema 1.8.1','.media-detail-card','.cards-horizontal','type-slot','Title View','association-badge','media-detail-artwork-layer','cinematic home','Mobile header rows']) if(!css.includes(x)) throw Error('Missing theme section '+x);
 if((css.match(/{/g)||[]).length!==(css.match(/}/g)||[]).length) throw Error('Unbalanced CSS');
 fs.writeFileSync(dst,css,'utf8');
-// TV SSR calls the local API; retain a bounded 15s timeout for cold metadata loads.
-const page='/app/.next/server/pages/tv/[tvId].js';
+// Movie and TV SSR call the local API; allow bounded time for cold metadata loads.
 const old='timeout:5e3,maxContentLength:0x1000000,maxBodyLength:1048576';
 const replacement='timeout:15e3,maxContentLength:0x1000000,maxBodyLength:1048576';
-let bundle=fs.readFileSync(page,'utf8');
-const count=bundle.split(old).length-1;
-if(count===1) bundle=bundle.replace(old,replacement);
-else if(count!==0 || !bundle.includes(replacement)) throw Error('Expected one TV internal API timeout, found '+count);
-fs.writeFileSync(page,bundle,'utf8');
+for(const page of ['/app/.next/server/pages/movie/[movieId].js','/app/.next/server/pages/tv/[tvId].js']) {
+  let bundle=fs.readFileSync(page,'utf8');
+  const count=bundle.split(old).length-1;
+  if(count===1) bundle=bundle.replace(old,replacement);
+  else if(count!==0 || !bundle.includes(replacement)) throw Error('Expected one internal API timeout in '+page+', found '+count);
+  fs.writeFileSync(page,bundle,'utf8');
+}
 const documentPath='/app/.next/server/pages/_document.js';
 let document=fs.readFileSync(documentPath,'utf8');
-if(!document.includes('theme.css?v=1.8.0')) {
+if(!document.includes('theme.css?v=1.8.1')) {
   if(!document.includes('theme.css?v=1.4.0')) throw Error('Theme stylesheet URL not found');
-  document=document.replace('theme.css?v=1.4.0','theme.css?v=1.8.0');
+  document=document.replace('theme.css?v=1.4.0','theme.css?v=1.8.1');
   fs.writeFileSync(documentPath,document,'utf8');
 }
 // SeerrNG's UI dictionaries are JSON.parse string literals in server chunks.
@@ -68,4 +69,4 @@ Object.assign(notifications,{
   'notifications.common.adult':'contenu pour adultes',
 });
 fs.writeFileSync(notificationFile,JSON.stringify(notifications,null,2)+'\n','utf8');
-console.log('Installed Quiet Cinema 1.8; French UI dictionary completed ('+added+' strings in '+patchedChunk+'); TV SSR timeout 15s.');
+console.log('Installed Quiet Cinema 1.8.1; French UI dictionary completed ('+added+' strings in '+patchedChunk+'); movie and TV SSR timeouts 15s.');

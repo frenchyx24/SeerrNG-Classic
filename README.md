@@ -1,6 +1,6 @@
 # SeerrNG Quiet Cinema
 
-Quiet Cinema 1.8 is a responsive SeerrNG interface inspired by your reference: cinematic featured media, tighter poster rows, a compact sidebar and touch-friendly mobile navigation. It also completes missing French UI messages.
+Quiet Cinema 1.8.1 is a responsive SeerrNG interface inspired by your reference: cinematic featured media, tighter poster rows, a compact sidebar and touch-friendly mobile navigation. It also completes missing French UI messages.
 
 ## Changes in 1.6.0
 
@@ -29,3 +29,11 @@ Image: `ghcr.io/frenchyx24/seerrng-classic:1.7.0`
 - Kept SeerrNG's native search, browsing, request, and media actions.
 
 Image: `ghcr.io/frenchyx24/seerrng-classic:1.8.0`
+
+## Changes in 1.8.1
+
+- Increased the internal SSR API timeout for movie and TV pages to 15 seconds to prevent metadata-load timeouts from becoming HTTP 500 responses.
+- Reflowed the mobile header into clear search and control rows and reserved space for the bottom navigation.
+- Kept native SeerrNG request and navigation controls intact.
+
+Image: `ghcr.io/frenchyx24/seerrng-classic:1.8.1`
