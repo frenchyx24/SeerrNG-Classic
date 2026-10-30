@@ -1,13 +1,13 @@
 # SeerrNG Quiet Cinema
 
-A restrained redesign of the SeerrNG Classic theme, built on current SeerrNG routes, permissions, and components.
+A handcrafted, responsive interface theme for SeerrNG: cinematic editorial typography, warm brass controls and calm graphite surfaces.
 
-## 1.2.0 — Quiet Cinema
+## 1.3.0 — Cinema, refined
 
-- Replaces the old visual layer with a graphite-and-sage theme and matching light mode.
-- Simplifies navigation, panels, forms, tables, and controls; tones down gradients, shadows, and oversized headings.
-- Reworks movie/series grids and detail heroes for a cleaner, more cinematic presentation.
-- Uses fluid spacing, safe-area handling, touch-friendly mobile controls, and responsive detail layouts.
-- Keeps animation subtle, honors reduced-motion settings, and avoids costly blur effects.
+- Complete stylesheet replacement; no appended patch stack.
+- A unified, accessible button system for primary, secondary, destructive, quiet and poster actions.
+- Redesigned search fields, filters, tabs, navigation, tables and settings surfaces.
+- Poster-led movie and series pages with clearer hierarchy and responsive spacing.
+- Matched dark and light palettes, keyboard focus, reduced-motion support and mobile touch targets.
 
-Deploy ghcr.io/frenchyx24/seerrng-classic:1.2.0. The stylesheet URL is versioned to bypass stale cache entries.
+Image: ghcr.io/frenchyx24/seerrng-classic:1.3.0
