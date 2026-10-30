@@ -1,11 +1,11 @@
-name: Publish SeerrNG Classic theme-route fix
+name: Publish SeerrNG Classic mobile homepage fix
 
 on:
   push:
     branches: [main]
     paths:
       - Dockerfile
-      - patch-interface-theme-api.cjs
+      - patch-mobile-homepage.cjs
       - .github/workflows/publish-theme-fix.yml
   workflow_dispatch:
 
@@ -28,4 +28,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/frenchyx24/seerrng-classic:1.0.4
+          tags: ghcr.io/frenchyx24/seerrng-classic:1.0.5
