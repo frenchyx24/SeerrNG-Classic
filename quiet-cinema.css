@@ -1,4 +1,4 @@
-/* SeerrNG Classic — Quiet Cinema 1.5
+/* SeerrNG Classic — Quiet Cinema 1.6
    Restrained cinema interface; presentation only, native features remain visible. */
 :root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']{color-scheme:dark;--interface-page:#101113;--interface-panel:#17191b;--interface-panel-raised:#202224;--interface-border:#303234;--interface-text:#f0eee8;--interface-muted:#a5a39d;--interface-link:#d4b875;--interface-accent-a:#c5a45d;--interface-accent-b:#e3cc91;--interface-sidebar-top:#141618;--interface-sidebar-bottom:#101113;--interface-sidebar-selected:rgb(197 164 93/.12);--interface-table-header:#1c1e20;--interface-table-hover:rgb(255 255 255/.035);--interface-sidebar-width:14.5rem;--interface-page-gutter:clamp(1rem,3vw,2rem);--interface-grid-gap:clamp(.7rem,1.6vw,1rem);--interface-section-gap:1.5rem;--interface-card-radius:.55rem;--interface-poster-radius:.35rem;--interface-control-radius:.45rem;--interface-main-card-padding:1rem;--interface-inset-card-padding:.75rem;--interface-detail-row-gap:.4rem;--interface-motion-duration:140ms;--poster-width:156px;--poster-aspect-ratio:2/3;--app-card-frame-width:0;--app-card-frame-background:transparent}
 :is(:root[data-interface-theme='seerrng-classic'][data-theme-mode='light'],[data-interface-theme='seerrng-classic'][data-theme-mode='light']){color-scheme:light;--interface-page:#f4f2ed;--interface-panel:#fbfaf7;--interface-panel-raised:#eeece6;--interface-border:#dedbd3;--interface-text:#24231f;--interface-muted:#77746d;--interface-link:#765b2c;--interface-accent-a:#987637;--interface-accent-b:#775d2d;--interface-sidebar-top:#fbfaf7;--interface-sidebar-bottom:#f4f2ed;--interface-sidebar-selected:rgb(152 118 55/.11);--interface-table-header:#eeece6;--interface-table-hover:rgb(0 0 0/.035)}
@@ -57,6 +57,32 @@
 :is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .media-overview{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(14rem,.7fr);align-items:start;gap:1.4rem;padding-block:1.25rem;color:var(--interface-muted);line-height:1.65}
 :is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .media-facts{border:0;border-inline-start:1px solid var(--interface-border);border-radius:0;background:transparent;box-shadow:none}
 :is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) :is(.media-detail-rows,.card-table,.collection-summary-table){row-gap:var(--interface-detail-row-gap);line-height:1.5}
+/* Hide nonessential association, rating, and favorite/watchlist controls. */
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) [data-testid='association-badge'],
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .poster-control-association,
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .poster-control-watchlist,
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .poster-control-favorite,
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) [data-testid*='favorite'],
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .poster-rating-popover,
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .movie-summary-ratings-row,
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .media-rating-row .media-rating-link,
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) [data-testid='music-playback-rating-row']{display:none!important}
+/* Replace the oversized backdrop and stacked metadata with a compact mobile header. */
+@media(max-width:767px){
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .media-detail-artwork-layer{display:none!important}
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .media-detail-card{overflow:visible;border:0;border-radius:0;padding:0;background:transparent;box-shadow:none}
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .media-detail-card :is(.detail-summary-card,.app-detail-summary-grid){display:grid;grid-template-columns:5.75rem minmax(0,1fr);align-items:center;justify-items:stretch;gap:1rem;padding:1rem;border:1px solid var(--interface-border);border-radius:.7rem;background:var(--interface-panel);text-align:start}
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .media-detail-card :is(.detail-summary-card [data-testid='media-details-poster'],.app-detail-poster-frame,.detail-card-poster,.collection-summary-poster){position:relative;width:5.75rem;height:8.625rem;aspect-ratio:2/3;overflow:hidden;border-radius:.4rem;background:var(--interface-panel-raised);box-shadow:none}
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .media-detail-card .collection-summary-poster-image{width:100%;height:100%;object-fit:cover}
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .media-detail-card :is(.movie-summary-title,[data-testid='media-title'],.detail-summary-title,.card-title,.media-title){margin:0;color:var(--interface-text);font-size:clamp(1.35rem,5vw,1.8rem);font-weight:750;line-height:1.12;letter-spacing:-.04em;text-align:start;text-wrap:balance}
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .media-detail-card :is(.movie-summary-fields,.detail-summary-card .media-detail-rows,.detail-summary-card [data-testid='media-details-genres']){display:none!important}
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .media-detail-card [data-detail-layout] :is(.app-card-inset,.refreshed-inset-surface){border:1px solid var(--interface-border);border-radius:.65rem;background:var(--interface-panel);box-shadow:none}
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .media-detail-card .media-primary-action-row{display:flex;flex-wrap:wrap;gap:.55rem}
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .media-detail-card .media-request-action-row{display:grid;grid-template-columns:minmax(0,1fr);gap:.55rem;margin-block-start:.7rem}
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .media-detail-card .media-request-submit-action{grid-row:1}
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .media-detail-card .media-request-submit-action button{width:100%;min-height:3rem;font-size:1rem}
+:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .media-detail-card .media-request-search-action{display:flex;flex-wrap:wrap;gap:.5rem}
+}
 /* Settings and tables: remove the card-within-card effect. */
 :is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .app-pinned-filter-group,:is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .settings-page-content{display:flex;flex-direction:column;gap:var(--interface-section-gap)}
 :is(:root[data-interface-theme='seerrng-classic'],[data-interface-theme='seerrng-classic']) .app-pinned-filter-section{border-bottom:1px solid var(--interface-border);padding-block-end:1rem}
