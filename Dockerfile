@@ -1,6 +1,7 @@
-FROM ghcr.io/frenchyx24/seerrng-classic:1.0.7
+FROM ghcr.io/frenchyx24/seerrng-classic:1.1.1
 
 USER root
-COPY patch-responsive-polish.cjs /tmp/patch-responsive-polish.cjs
-RUN node /tmp/patch-responsive-polish.cjs && rm /tmp/patch-responsive-polish.cjs
+COPY quiet-cinema.css /tmp/quiet-cinema.css
+COPY install-quiet-cinema.cjs /tmp/install-quiet-cinema.cjs
+RUN node /tmp/install-quiet-cinema.cjs && rm /tmp/quiet-cinema.css /tmp/install-quiet-cinema.cjs
 USER node
