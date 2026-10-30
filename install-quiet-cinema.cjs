@@ -17,8 +17,8 @@ fs.writeFileSync(page,bundle,'utf8');
 const documentPath='/app/.next/server/pages/_document.js';
 let document=fs.readFileSync(documentPath,'utf8');
 if(!document.includes('theme.css?v=1.6.0')) {
-  if(!document.includes('theme.css?v=1.5.0')) throw Error('Theme stylesheet URL not found');
-  document=document.replace('theme.css?v=1.5.0','theme.css?v=1.6.0');
+  if(!document.includes('theme.css?v=1.4.0')) throw Error('Theme stylesheet URL not found');
+  document=document.replace('theme.css?v=1.4.0','theme.css?v=1.6.0');
   fs.writeFileSync(documentPath,document,'utf8');
 }
 console.log('Installed Quiet Cinema 1.6; TV SSR timeout 15s.');
