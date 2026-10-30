@@ -1,6 +1,6 @@
-FROM ghcr.io/frenchyx24/seerrng-classic:1.0.5
+FROM ghcr.io/frenchyx24/seerrng-classic:1.0.7
 
 USER root
-COPY patch-homepage-cache-bust.cjs /tmp/patch-homepage-cache-bust.cjs
-RUN node /tmp/patch-homepage-cache-bust.cjs && rm /tmp/patch-homepage-cache-bust.cjs
+COPY patch-responsive-polish.cjs /tmp/patch-responsive-polish.cjs
+RUN node /tmp/patch-responsive-polish.cjs && rm /tmp/patch-responsive-polish.cjs
 USER node
